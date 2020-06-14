@@ -1,0 +1,86 @@
+# GLOBAL CONFIGURATION
+spring:
+    # if you want to set a different profile
+    # use environment variable:
+    #
+    # SPRING_PROFILES_ACTIVE=docker
+    profiles.active: local
+    application.name: servicos
+
+eureka:
+    client:
+        serviceUrl:
+            defaultZone: http://discovery:8761/eureka/
+    instance:
+        # send ip addresses to the discovery. this is
+        # important for client side load balancing
+        preferIpAddress: true
+        # push this service all 10 seconds to the registry
+        leaseRenewalIntervalInSeconds: 10
+        metadataMap:
+            instanceId: ${vcap.application.instance_id:${spring.application.name}:${spring.application.instance_id:${server.port}}}
+        status-page-url: http://localhost:8080/swagger-ui.html
+
+fanout.exchange:
+    name: amq.fanout
+---
+# DOCKER CONFIGURATION
+spring:
+    profiles: docker
+
+    datasource:
+        username: ${MYSQL_USER}
+        password: ${MYSQL_PASS}
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        url: ${MYSQL_URL}
+    jpa:
+        show-sql: true
+        hibernate:
+            ddl-auto: update
+
+    rabbitmq:
+        host: ${RABBITMQ_HOST}
+        port: ${RABBITMQ_PORT}
+        username: ${RABBITMQ_USERNAME}
+        password: ${RABBITMQ_PASSWORD}
+
+# inside a container, we can always map to 8080. Use your compose
+# file to expose a service on a different port.
+server.port: 8080
+
+---
+# LOCAL CONFIGURATION
+spring:
+    profiles: local
+
+    datasource:
+        username: netflixusr
+        password: netflix123
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://localhost:3306/netflix
+    jpa:
+        show-sql: true
+        hibernate:
+            ddl-auto: update
+
+    rabbitmq:
+        host: localhost
+        port: 5672
+        username: netflixusr
+        password: netflix123
+
+# random server port to avoid port 
+# conflicts on localhost
+server.port: 0
+
+eureka:
+    client:
+        # in local mode you have to run your service
+        # discovery on localhost (you also can run the
+        # cloud infrastructure on your local docker host)
+        serviceUrl.defaultZone: http://localhost:8761/eureka/
+        # fetch all 5 seconds the delta from the service registry
+        registry-fetch-interval-seconds: 5
+    instance:
+        status-page-url: http://localhost:8080/swagger-ui.html
+
