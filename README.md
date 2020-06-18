@@ -29,7 +29,9 @@ Não houve a necessidade de implementação de um ConfigServer pelo fato da mont
 ser feita utilizando tecnologia de contêineres e, portanto, as configurações podem
 ser enviadas na subida do sistema através de variáveis de ambiente. 
 
->> Inserir o Arquitetura da App <<
+# Arquitetura
+
+
 
 
 # Montagem do sistema e execução
